@@ -3,22 +3,25 @@
 #include <iostream>
 #include <string>
 
-#include <SDL.h>
+#define _HAVE_STDINT_H 1
+
+#include <SDL2/SDL.h>
 
 SDL_Window* gWindow = nullptr;
 SDL_Surface* globalScreenSurface = nullptr; 
 SDL_Surface* globalImage = nullptr;
 
 static void draw(){
-    SDL_BlitSurface(globalImage, nullptr, globalScreenSurface, nullptr);
+    if(0 != SDL_BlitSurface(globalImage, nullptr, globalScreenSurface, nullptr)){
+        throw std::runtime_error("Blit failed.\n");
+    }
 
     if(EXIT_SUCCESS != SDL_UpdateWindowSurface(gWindow)){
         std::cerr << "SDL_UpdateWindowSurface() failed. Reason: " << SDL_GetError() << std::endl;
         return;
     }
 
-	SDL_UpdateWindowSurface(gWindow);
-	SDL_Delay(3000);
+	SDL_Delay(30000);
 }
 
 static int32_t loadResources(){
@@ -69,7 +72,7 @@ static int32_t init(){
     return EXIT_SUCCESS;
 }
 
-static int32_t deinit(){
+static void deinit(){
     SDL_FreeSurface(globalImage);
 
     if(gWindow != nullptr){
@@ -80,7 +83,7 @@ static int32_t deinit(){
     SDL_Quit();
 }
 
-int32_t main(int32_t [[__attribute_maybe_unused__]]argc, char* [[__attribute_maybe_unused__]]argv[]){
+int32_t main([[maybe_unused]] int32_t argc, [[maybe_unused]] char* argv[]){
 
     if(EXIT_SUCCESS != init()){
         std::cerr << "init() failed" << std::endl;
